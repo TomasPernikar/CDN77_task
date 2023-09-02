@@ -1,0 +1,22 @@
+- name: Zprovozneni skriptu v Daemontools
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Vytvoreni slozky pro daemontools servis
+      file:
+        path: /etc/service/nginx_status
+        state: directory
+        mode: '0755'
+
+    - name: Kopirovani python skriptu do /usr/local/bin
+      copy:
+        src: files/nginx_status.py
+        dest: /usr/local/bin/nginx_status.py
+        mode: '0755'
+
+    - name: Kopirovani obsahu skriptu do /etc/service/nginx_status/run
+      copy:
+        src: files/nginx_status.sh
+        dest: /etc/service/nginx_status/run
+        mode: '0755'
+

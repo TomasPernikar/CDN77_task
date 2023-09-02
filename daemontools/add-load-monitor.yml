@@ -1,0 +1,16 @@
+- name: Zprovozneni skriptu v Daemontools
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Vytvoreni slozky pro daemontools servis
+      file:
+        path: /etc/service/load_monitor
+        state: directory
+        mode: '0755'
+
+    - name: Kopirovani obsahu skriptu do /etc/service/load_monitor/run
+      copy:
+        src: files/load_monitor.sh
+        dest: /etc/service/load_monitor/run
+        mode: '0755'
+

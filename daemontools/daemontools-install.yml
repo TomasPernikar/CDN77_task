@@ -1,0 +1,19 @@
+---
+- name: Install Daemontools on Debian
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Check if Daemontools is already installed
+      stat:
+        path: /usr/bin/svscan
+      register: daemontools_installed
+      changed_when: false
+    
+    - name: Install Daemontools package
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - daemontools
+        - daemontools-run    
+      when: not daemontools_installed.stat.exists
