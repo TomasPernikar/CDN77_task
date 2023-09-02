@@ -1,0 +1,21 @@
+---
+- name: Pridani bridge vmbr0 na prvni pevny adapter ve stavu UP
+  hosts: pve_server
+  become: yes
+
+  tasks:
+    - name: Najít první pevny adapter ve stavu UP
+      shell: "ip link show up | grep -E '^2: en' | awk '{print $2}' | rev | cut -c 2- | rev"
+      register: network_adapter
+      changed_when: false 
+
+    - name: Pridani bridge vmbr0
+      command: brctl addbr vmbr0
+      ignore_errors: yes
+
+    - name: Nastaveni vmbr0 do stavu UP
+      command: ip link set dev vmbr0 up
+
+    - name: Pripojeni bridge na sitove rozhrani
+      command: brctl addif vmbr0 "{{ network_adapter.stdout }}"
+

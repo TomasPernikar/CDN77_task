@@ -1,0 +1,2 @@
+- import_playbook: after-reboot/set_bridge-pve.yml
+- import_playbook: after-reboot/create_template-pve.yml

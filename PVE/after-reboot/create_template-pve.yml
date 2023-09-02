@@ -1,0 +1,15 @@
+---
+- name: Vytvoreni VM template pro Debian
+  hosts: pve_server  
+  become: yes
+
+  tasks:
+    - name: Stahnout ISO obraz Debian
+      get_url:
+        url: https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.1.0-amd64-netinst.iso
+        dest: /var/lib/vz/template/iso/debian-12.1.0-amd64-netinst.iso
+
+    - name: Vytvorit VM template
+      shell: qm create 100 --name Deb-template --memory 2048 --ide0 local:2 --net0 virtio,bridge=vmbr0 --cdrom local:iso/debian-12.1.0-amd64-netinst.iso --cores 2 --onboot 1
+
+

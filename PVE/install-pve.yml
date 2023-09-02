@@ -1,0 +1,67 @@
+---
+- name: Instalace Proxmox VE
+  hosts: pve_server
+  become: yes
+
+  tasks:
+    - name: Ziskani IP addresy
+      command: hostname -I
+      register: ip_address_output
+
+    - name: Ziskani hostname
+      command: hostnamectl --static
+      register: static_hostname_output
+
+    - name: Uprava /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1'
+        line: "{{ ip_address_output.stdout }} {{ static_hostname_output.stdout }}.proxmox.com {{ ip_address_output.stdout }}"
+
+    - name: Pridani repozitare Proxmox
+      apt_repository:
+        repo: "deb [arch=amd64] http://download.proxmox.com/debian/pve bookworm pve-no-subscription"
+        state: present
+
+    - name: Odstraneni souboru pve-enterprise.list
+      file:
+        path: /etc/apt/sources.list.d/pve-enterprise.list
+        state: absent
+      ignore_errors: yes
+
+    - name: Import GPG klice repozitare Proxmox
+      apt_key:
+        url: "https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg"
+        state: present
+
+    - name: Aktualizace cache balicku
+      apt:
+        update_cache: yes
+
+    - name: Uplna aktualizace systemu
+      apt:
+        upgrade: "full"
+        update_cache: yes
+
+    - name: Instalace Proxmox kernelu
+      apt:
+        name: pve-kernel-6.2
+        state: present
+
+    - name: Instalace balicku Proxmox VE
+      apt:
+        name:
+          - proxmox-ve
+          - postfix
+          - open-iscsi
+        state: present
+
+    - name: Aktualizace GRUB
+      command: update-grub
+      changed_when: false
+
+    - name: Odstraneni balicku os-prober
+      apt:
+        name: os-prober
+        state: absent
+
