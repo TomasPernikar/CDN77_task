@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": null,
+    "title": "Node Exporter Dashboard",
+    "panels": [
+      {
+        "type": "text",
+        "title": "Node Exporter Metrics",
+        "content": "This dashboard displays Node Exporter metrics.",
+        "mode": "html",
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 3
+        }
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "5s",
+    "schemaVersion": 22,
+    "version": 0
+  },
+  "overwrite": false
+}
+

@@ -1,0 +1,20 @@
+---
+- name: Vytvoreni dashboardu v Grafaně
+  hosts: monitoring
+  gather_facts: yes
+  tasks:
+    - name: Nahrani JSON souboru s definici dashboardu
+      copy:
+        src: ./templates/node_exporter_dashboard.json
+        dest: /tmp/node_exporter_dashboard.json
+  
+    - name: Nahrani dashboardu do Grafany
+      uri:
+        url: "http://{{ ansible_default_ipv4.address }}:3000/api/dashboards/db"
+        method: POST
+        body_format: json
+        body: "{{ lookup('file', './templates/node_exporter_dashboard.json') }}"
+        headers:
+          Authorization: "Bearer {{ api_access_token }}"
+        status_code: 200
+

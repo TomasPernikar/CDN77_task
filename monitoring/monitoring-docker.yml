@@ -1,0 +1,26 @@
+---
+- name: Spusteni sluzeb s Docker Compose
+  hosts: monitoring
+  become: yes
+  
+  tasks:
+    - name: Vytvoreni adresare /opt/prometheus
+      file:
+        path: /opt/prometheus
+        state: directory
+  
+    - name: Nakopirovani prometheus.yml
+      template:
+        src: templates/prometheus.yml.j2  
+        dest: /opt/prometheus/prometheus.yml
+  
+    - name: Nakopirovani docker-compose.yml
+      template:
+        src: templates/docker-compose.yml.j2  
+        dest: /opt/prometheus/docker-compose.yml
+  
+    - name: Spusteni sluzeb pomoci Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /opt/prometheus
+
