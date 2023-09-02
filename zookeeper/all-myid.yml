@@ -3,6 +3,6 @@
   hosts: localhost
   tasks:
     - name: Bash 
-      shell: for node in "node1" "node2" "node3"; do ansible-playbook myid.yml --limit "$node" ; done
+      shell: for node in "node1" "node2" "node3" "node4" "node5"; do ansible-playbook myid.yml --limit "$node" ; done
 
 
