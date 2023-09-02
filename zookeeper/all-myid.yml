@@ -1,0 +1,8 @@
+---
+- name: Vsechny nody 
+  hosts: localhost
+  tasks:
+    - name: Bash 
+      shell: for node in "node1" "node2" "node3"; do ansible-playbook myid.yml --limit "$node" ; done
+
+

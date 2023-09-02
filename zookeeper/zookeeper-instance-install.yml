@@ -1,0 +1,71 @@
+---
+- name: Instalace a konfigurace Apache ZooKeeper
+  hosts: nodes
+  become: yes
+  
+  tasks:
+    - name: Aktualizace repozitaru
+      apt:
+        update_cache: yes
+
+    - name: Instalace default-jre
+      apt:
+        name: default-jre
+        state: present
+
+    - name: Vytvoreni uzivatele zk
+      user:
+        name: zk
+        create_home: yes
+        shell: /bin/bash
+        groups: sudo
+
+    - name: Stazeni
+      get_url:
+        url: https://dlcdn.apache.org/zookeeper/zookeeper-3.8.2/apache-zookeeper-3.8.2-bin.tar.gz
+        dest: /opt/apache-zookeeper-3.8.2-bin.tar.gz
+   
+    - name: Rozbaleni
+      ansible.builtin.unarchive:
+        src: /opt/apache-zookeeper-3.8.2-bin.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Vytvoreni symlinku
+      ansible.builtin.file:
+        src: /opt/apache-zookeeper-3.8.2-bin
+        dest: /opt/zookeeper
+        state: link
+
+    - name: Opravneni 
+      ansible.builtin.file:
+        path: /opt/apache-zookeeper-3.8.2-bin
+        owner: zk
+        group: zk
+        recurse: yes
+
+    - name: Kopirovani konfiguracniho souboru zoo.cfg
+      ansible.builtin.copy:
+        src: files/zoo.cfg
+        dest: /opt/zookeeper/conf/zoo.cfg
+        owner: zk
+        group: zk
+
+    - name: Kopirovani zk.service
+      ansible.builtin.copy:
+        src: files/zk.service
+        dest: /etc/systemd/system/zk.service
+    
+    - name: Vytvoreni adresare /data/zookeeper
+      ansible.builtin.file:
+        path: /data/zookeeper
+        state: directory
+        owner: zk
+        group: zk
+
+    - name: Spusteni a povoleni sluzby zk
+      systemd:
+        name: zk
+        state: started
+        enabled: yes
+

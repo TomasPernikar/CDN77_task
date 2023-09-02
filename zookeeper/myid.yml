@@ -1,0 +1,14 @@
+- name: Vytvoreni souboru myid
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Get host number
+      set_fact:
+        host_number: "{{ inventory_hostname | regex_replace('^node', '') }}"
+
+    - name: soubor myid
+      ansible.builtin.copy:
+        content: "{{ host_number }}"
+        dest: /data/zookeeper/myid
+

@@ -1,0 +1,3 @@
+- import_playbook: zookeeper-instance-install.yml
+- import_playbook: all-myid.yml 
+- import_playbook: zk-cluster-conf.yml
