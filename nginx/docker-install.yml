@@ -1,0 +1,63 @@
+---
+- name: Instalace Dockeru pres apt repozitar
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Update apt package index
+      apt:
+        update_cache: yes  
+      tags: update_packages
+
+    - name: Instalace potrebnych balicku
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ca-certificates
+        - curl
+        - gnupg
+      tags: required_packages
+
+    - name: GPG klic
+      become: yes
+      shell: |
+        sudo install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        sudo chmod a+r /etc/apt/keyrings/docker.gpg
+      tags: add_gpg_key
+
+    - name: Nastaveni Docker repozitare
+      become: yes
+      shell: |
+        echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      tags: setup_repository
+
+    - name: Aktualizace apt po nastaveni repozitare
+      apt:
+        update_cache: yes
+      tags: update_repository
+
+    - name: Instalace Docker Engine, containerd, Docker Compose atd
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+      tags: install_docker
+
+    - name: Stazeni Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: 'a+x'        
+      tags: docker-compose
+  
+    - name: chmod
+      file:
+        path: /usr/local/bin/docker-compose
+        mode: 'a+x'
+      tags: docker-compose

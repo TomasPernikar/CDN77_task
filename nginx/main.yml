@@ -1,0 +1,3 @@
+- import_playbook: docker-install.yml 
+- import_playbook: nginx-basic-install.yml
+- import_playbook: nginx-proxy-install.yml

@@ -1,0 +1,53 @@
+---
+- name: Playbook na vytvoreni nginx proxy v docker kontejneru
+  hosts: webserver
+  become: true
+
+  tasks:
+    - name: Adresar pro dockerfiles 
+      file:
+        path: /usr/local/dockerfiles/nginx_proxy
+        state: directory
+
+    - name: Kopirovani conf souboru
+      copy:
+        src: files/nginx.conf
+        dest: /usr/local/dockerfiles/nginx_proxy/nginx.conf
+        mode: '0644'
+      tags:
+        - soubory
+
+    - name: Kopirovani souboru
+      copy:
+        src: files/confd.conf
+        dest: /usr/local/dockerfiles/nginx_proxy/confd.conf
+        mode: '0644'
+      tags: -soubory
+ 
+    - name: Kopirovani souboru
+      copy:
+        src: files/Dockerfile
+        dest: /usr/local/dockerfiles/nginx_proxy/Dockerfile
+        mode: '0644'
+      tags:
+        - soubory
+
+    - name: Sestavit Docker kontejner
+      command: docker build -t proxy .
+      args:
+        chdir: /usr/local/dockerfiles/nginx_proxy
+      tags:
+        - docker
+
+    - name: Smazat symlink /etc/nginx/sites-enabled/default
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      tags:
+        - konfigurace
+
+    - name: Spustit NGINX proxy kontejner
+      command: docker run --add-host host.docker.internal:host-gateway -it --rm -d -p 80:80 --name proxy proxy
+      tags:
+        - start
+
